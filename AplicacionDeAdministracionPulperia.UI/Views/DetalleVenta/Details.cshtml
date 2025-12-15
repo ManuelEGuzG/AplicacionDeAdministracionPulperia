@@ -1,0 +1,175 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.DetalleVenta
+@{
+    Layout = null;
+    ViewData["Title"] = "Detalle de Item";
+    var producto = ViewBag.Producto as AplicacionDeAdministracionPulperia.Model.Producto;
+    var venta = ViewBag.Venta as AplicacionDeAdministracionPulperia.Model.Venta;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1b1f2a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .details-container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .details-card {
+            background: #1b1f2a;
+            border-radius: 1.2rem;
+            border: 1px solid #2a2f3c;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .details-header {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+            border-bottom: 1px solid #2a2f3c;
+            position: relative;
+        }
+
+            .details-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            }
+
+        .details-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .details-subtitle {
+            font-size: 1rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .details-body {
+            padding: 2rem;
+        }
+
+        .info-section {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .section-title i {
+                color: #3b82f6;
+            }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.25rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .price-value {
+            color: #10b981;
+        }
+
+        .actions-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #2a2f3c;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            font-weight: 600;
+            border-radius: 0.6rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+            .btn-secondary:hover {
+                background-color: #475569;
+                border-color: #64748b;
+                color: #ffffff;
+                transform: translateY(-1px);
+            }
+
+        .details-card {
+            animation: slideUp 0.4s ease-out;
+        }

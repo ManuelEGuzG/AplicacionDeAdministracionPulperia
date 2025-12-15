@@ -1,0 +1,297 @@
+﻿@model IEnumerable<AplicacionDeAdministracionPulperia.Model.DetalleVenta>
+
+@{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
+    ViewData["Title"] = "Detalles de Venta";
+    var venta = ViewBag.Venta as AplicacionDeAdministracionPulperia.Model.Venta;
+}
+
+<style>
+    /* Usar los mismos estilos de las otras vistas profesionales */
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    .info-card {
+        background: #1b1f2a;
+        border: 1px solid #2a2f3c;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1.25rem;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .dashboard-card {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        padding: 0;
+        border: 1px solid #2a2f3c;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        color: #ffffff;
+        background-color: #1b1f2a !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background-color: #0f1419 !important;
+    }
+
+    .table thead th {
+        color: #94a3b8;
+        background-color: #0f1419 !important;
+        border-bottom: 2px solid #2a2f3c;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+    }
+
+    .table tbody tr {
+        background-color: #1b1f2a !important;
+        border-bottom: 1px solid #2a2f3c;
+    }
+
+    .table td {
+        background-color: transparent !important;
+        border-color: #2a2f3c;
+        vertical-align: middle;
+        padding: 1rem 1.5rem;
+        color: #ffffff;
+    }
+
+    .table tbody tr:hover {
+        background-color: #242a38 !important;
+    }
+
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background-color: #475569;
+        border-color: #64748b;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .price-value {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .total-section {
+        background: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .total-label {
+        font-size: 1.25rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .total-value {
+        font-size: 2rem;
+        color: #10b981;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-file-invoice"></i> Detalles de Venta
+        </div>
+        <div class="dashboard-subtitle">Recibo: @venta?.NumeroRecibo — InvCore360</div>
+    </div>
+
+    @if (venta != null)
+    {
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Fecha</span>
+                    <span class="info-value">@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tipo de Pago</span>
+                    <span class="info-value">@venta.TipoPago</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cajero</span>
+                    <span class="info-value">@venta.Cajero</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total</span>
+                    <span class="info-value price-value">₡@venta.Total.ToString("N2")</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="mb-4">
+        <a asp-controller="Ventas" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver a Ventas</span>
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Precio Unit.</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var detalle in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>Producto #@detalle.IdProducto</strong>
+                                </td>
+                                <td class="text-center">@detalle.Cantidad</td>
+                                <td class="text-end price-value">₡@detalle.PrecioUnitario.ToString("N2")</td>
+                                <td class="text-end price-value">₡@detalle.Subtotal.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No hay detalles para esta venta.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="total-section">
+                <span class="total-label">TOTAL:</span>
+                <span class="total-value">₡@Model.Sum(d => d.Subtotal).ToString("N2")</span>
+            </div>
+        }
+    </div>
+</div>
