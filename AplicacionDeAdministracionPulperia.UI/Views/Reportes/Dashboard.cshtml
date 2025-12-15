@@ -1,0 +1,489 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.DashboardReportes
+
+@{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
+    ViewData["Title"] = "Dashboard de Reportes";
+}
+
+<style>
+    /* ===== CONTENEDORES ===== */
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+        }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    /* ===== KPI GRID ===== */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+        background: #1b1f2a;
+        border-radius: 1rem;
+        border: 1px solid #2a2f3c;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease-out backwards;
+    }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--kpi-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--kpi-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+            .kpi-card:hover::before {
+                opacity: 1;
+            }
+
+    .kpi-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .kpi-icon-wrapper {
+        width: 52px;
+        height: 52px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--kpi-color-bg);
+        border: 1px solid var(--kpi-color-border);
+    }
+
+    .kpi-icon {
+        font-size: 1.75rem;
+        color: var(--kpi-color);
+    }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .kpi-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--kpi-color);
+        line-height: 1;
+    }
+
+    /* Colores KPI */
+    .kpi-sales {
+        --kpi-color: #fbbf24;
+        --kpi-color-bg: rgba(251, 191, 36, 0.1);
+        --kpi-color-border: rgba(251, 191, 36, 0.2);
+    }
+
+    .kpi-products {
+        --kpi-color: #3b82f6;
+        --kpi-color-bg: rgba(59, 130, 246, 0.1);
+        --kpi-color-border: rgba(59, 130, 246, 0.2);
+    }
+
+    .kpi-clients {
+        --kpi-color: #10b981;
+        --kpi-color-bg: rgba(16, 185, 129, 0.1);
+        --kpi-color-border: rgba(16, 185, 129, 0.2);
+    }
+
+    .kpi-profit {
+        --kpi-color: #8b5cf6;
+        --kpi-color-bg: rgba(139, 92, 246, 0.1);
+        --kpi-color-border: rgba(139, 92, 246, 0.2);
+    }
+
+    /* ===== SECCIONES ===== */
+    .section-card {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        padding: 2rem;
+        border: 1px solid #2a2f3c;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+        animation: fadeIn 0.5s ease-out backwards;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2f3c;
+    }
+
+        .section-title i {
+            color: #8b5cf6;
+        }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-item {
+        background: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.8rem;
+        padding: 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+        .stat-item:hover {
+            border-color: #374151;
+            background: #141920;
+        }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .stat-label i {
+            font-size: 1rem;
+            color: #3b82f6;
+        }
+
+    .stat-value {
+        font-size: 1.75rem;
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .stat-subtext {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+    /* ===== ANIMACIONES ===== */
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .kpi-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .kpi-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .kpi-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .kpi-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    .section-card:nth-child(1) {
+        animation-delay: 0.5s;
+    }
+
+    .section-card:nth-child(2) {
+        animation-delay: 0.6s;
+    }
+
+    /* ===== UTILITIES ===== */
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-card {
+        padding: 1.5rem;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-tachometer-alt"></i> Dashboard Completo
+        </div>
+        <div class="dashboard-subtitle">Todas las métricas del sistema en un vistazo — InvCore360</div>
+    </div>
+
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Reportes
+        </a>
+    </div>
+
+    @if (Model != null)
+    {
+        <!-- KPIs Principales -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-sales">
+                <div class="kpi-label">Total Ventas</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">₡@Model.TotalVentas.ToString("N2")</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-shopping-cart kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-products">
+                <div class="kpi-label">Productos Activos</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">@Model.TotalProductos</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-boxes kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-clients">
+                <div class="kpi-label">Clientes Totales</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">@Model.TotalClientes</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-users kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-profit">
+                <div class="kpi-label">Ganancia Total</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">₡@Model.GananciaTotal.ToString("N2")</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-coins kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Inventario -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-warehouse"></i>
+                Estadísticas de Inventario
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-cube"></i>
+                        Valor del Inventario
+                    </div>
+                    <div class="stat-value" style="color: #3b82f6;">₡@Model.ValorInventario.ToString("N2")</div>
+                    <div class="stat-subtext">Total en productos</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Productos Bajo Stock
+                    </div>
+                    <div class="stat-value" style="color: #ef4444;">@Model.ProductosBajoStock</div>
+                    <div class="stat-subtext">Requieren reorden</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-chart-pie"></i>
+                        Rotación Promedio
+                    </div>
+                    <div class="stat-value" style="color: #10b981;">@Model.RotacionPromedio.ToString("N1")</div>
+                    <div class="stat-subtext">Veces por período</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Ventas -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Estadísticas de Ventas
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-calendar-week"></i>
+                        Ventas del Mes
+                    </div>
+                    <div class="stat-value" style="color: #fbbf24;">@Model.VentasMes</div>
+                    <div class="stat-subtext">Transacciones realizadas</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        Ticket Promedio
+                    </div>
+                    <div class="stat-value" style="color: #10b981;">₡@Model.TicketPromedio.ToString("N2")</div>
+                    <div class="stat-subtext">Por venta</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <i class="fas fa-percentage"></i>
+                        Margen Promedio
+                    </div>
+                    <div class="stat-value" style="color: #8b5cf6;">@Model.MargenPromedio.ToString("N1")%</div>
+                    <div class="stat-subtext">De ganancia</div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-tachometer-alt"></i>
+            <p>No hay datos disponibles para generar el dashboard.</p>
+        </div>
+    }
+</div>

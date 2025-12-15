@@ -1,0 +1,551 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.ComparativoMensual
+
+@{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
+    ViewData["Title"] = "Comparativo Mensual";
+}
+
+<style>
+    /* ===== CONTENEDORES ===== */
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ec4899 0%, #f59e0b 100%);
+        }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    /* ===== COMPARACIÓN DE PERIODOS ===== */
+    .period-comparison {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .period-card {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease-out backwards;
+    }
+
+        .period-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--period-color);
+        }
+
+    .period-current {
+        --period-color: #10b981;
+    }
+
+    .period-previous {
+        --period-color: #64748b;
+    }
+
+    .period-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2f3c;
+    }
+
+    .period-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--period-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .period-badge {
+        padding: 0.4rem 0.9rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background: var(--period-color);
+        color: #ffffff;
+    }
+
+    .period-stats {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.6rem;
+        transition: all 0.2s ease;
+    }
+
+        .stat-row:hover {
+            border-color: #374151;
+            background: #141920;
+        }
+
+    .stat-label {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .stat-label i {
+            color: var(--period-color);
+        }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    /* ===== VARIACIONES ===== */
+    .variation-section {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        padding: 2rem;
+        border: 1px solid #2a2f3c;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.5s ease-out backwards;
+        animation-delay: 0.3s;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #2a2f3c;
+    }
+
+        .section-title i {
+            color: #ec4899;
+        }
+
+    .variations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .variation-card {
+        background: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.8rem;
+        padding: 1.75rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .variation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--variation-color);
+        }
+
+        .variation-card:hover {
+            border-color: var(--variation-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+    .variation-positive {
+        --variation-color: #10b981;
+    }
+
+    .variation-negative {
+        --variation-color: #ef4444;
+    }
+
+    .variation-neutral {
+        --variation-color: #64748b;
+    }
+
+    .variation-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .variation-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    .variation-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(var(--variation-rgb), 0.1);
+        color: var(--variation-color);
+        font-size: 1.25rem;
+    }
+
+    .variation-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--variation-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .variation-description {
+        font-size: 0.875rem;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+    /* ===== ANIMACIONES ===== */
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .period-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .period-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    /* ===== UTILITIES ===== */
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    media (max-width: 968px) {
+        .period-comparison
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .period-card {
+        padding: 1.5rem;
+    }
+
+    .variations-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .variation-card {
+        padding: 1.5rem;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-exchange-alt"></i> Comparativo Mensual
+        </div>
+        <div class="dashboard-subtitle">Análisis comparativo entre meses — InvCore360</div>
+    </div>
+
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Reportes
+        </a>
+    </div>
+
+    @if (Model != null)
+    {
+        <!-- Comparación de Períodos -->
+        <div class="period-comparison">
+            <!-- Mes Actual -->
+            <div class="period-card period-current">
+                <div class="period-header">
+                    <div class="period-title">
+                        <i class="fas fa-calendar-check"></i>
+                        @Model.MesActual
+                    </div>
+                    <div class="period-badge">Actual</div>
+                </div>
+
+                <div class="period-stats">
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-shopping-cart"></i>
+                            Ventas
+                        </div>
+                        <div class="stat-value">@Model.VentasMesActual</div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-dollar-sign"></i>
+                            Monto Total
+                        </div>
+                        <div class="stat-value" style="color: #10b981;">₡@Model.MontoMesActual.ToString("N2")</div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-coins"></i>
+                            Ganancia
+                        </div>
+                        <div class="stat-value" style="color: #10b981;">₡@Model.GananciaMesActual.ToString("N2")</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mes Anterior -->
+            <div class="period-card period-previous">
+                <div class="period-header">
+                    <div class="period-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        @Model.MesAnterior
+                    </div>
+                    <div class="period-badge">Anterior</div>
+                </div>
+
+                <div class="period-stats">
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-shopping-cart"></i>
+                            Ventas
+                        </div>
+                        <div class="stat-value">@Model.VentasMesAnterior</div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-dollar-sign"></i>
+                            Monto Total
+                        </div>
+                        <div class="stat-value">₡@Model.MontoMesAnterior.ToString("N2")</div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="stat-label">
+                            <i class="fas fa-coins"></i>
+                            Ganancia
+                        </div>
+                        <div class="stat-value">₡@Model.GananciaMesAnterior.ToString("N2")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variaciones -->
+        <div class="variation-section">
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                Variaciones y Tendencias
+            </div>
+
+            <div class="variations-grid">
+                @{
+                    var variacionVentas = Model.VentasMesActual - Model.VentasMesAnterior;
+                    var variacionMonto = Model.MontoMesActual - Model.MontoMesAnterior;
+                    var variacionGanancia = Model.GananciaMesActual - Model.GananciaMesAnterior;
+
+                    var porcVentas = Model.VentasMesAnterior > 0 ? (variacionVentas / (decimal)Model.VentasMesAnterior * 100) : 0;
+                    var porcMonto = Model.MontoMesAnterior > 0 ? (variacionMonto / Model.MontoMesAnterior * 100) : 0;
+                    var porcGanancia = Model.GananciaMesAnterior > 0 ? (variacionGanancia / Model.GananciaMesAnterior * 100) : 0;
+
+                    var classVentas = variacionVentas > 0 ? "variation-positive" : (variacionVentas < 0 ? "variation-negative" : "variation-neutral");
+                    var classMonto = variacionMonto > 0 ? "variation-positive" : (variacionMonto < 0 ? "variation-negative" : "variation-neutral");
+                    var classGanancia = variacionGanancia > 0 ? "variation-positive" : (variacionGanancia < 0 ? "variation-negative" : "variation-neutral");
+
+                    var iconVentas = variacionVentas > 0 ? "fa-arrow-up" : (variacionVentas < 0 ? "fa-arrow-down" : "fa-minus");
+                    var iconMonto = variacionMonto > 0 ? "fa-arrow-up" : (variacionMonto < 0 ? "fa-arrow-down" : "fa-minus");
+                    var iconGanancia = variacionGanancia > 0 ? "fa-arrow-up" : (variacionGanancia < 0 ? "fa-arrow-down" : "fa-minus");
+                }
+
+                <!-- Variación en Ventas -->
+                <div class="variation-card @classVentas" style="--variation-rgb: @(variacionVentas > 0 ? "16, 185, 129" : (variacionVentas < 0 ? "239, 68, 68" : "100, 116, 139"));">
+                    <div class="variation-header">
+                        <div class="variation-label">Variación en Ventas</div>
+                        <div class="variation-icon">
+                            <i class="fas @iconVentas"></i>
+                        </div>
+                    </div>
+                    <div class="variation-value">@(variacionVentas > 0 ? "+" : "")@variacionVentas</div>
+                    <div class="variation-description">
+                        @(variacionVentas > 0 ? "+" : "")@porcVentas.ToString("N1")% respecto al mes anterior
+                    </div>
+                </div>
+
+                <!-- Variación en Monto -->
+                <div class="variation-card @classMonto" style="--variation-rgb: @(variacionMonto > 0 ? "16, 185, 129" : (variacionMonto < 0 ? "239, 68, 68" : "100, 116, 139"));">
+                    <div class="variation-header">
+                        <div class="variation-label">Variación en Monto</div>
+                        <div class="variation-icon">
+                            <i class="fas @iconMonto"></i>
+                        </div>
+                    </div>
+                    <div class="variation-value">@(variacionMonto > 0 ? "+" : "")₡@variacionMonto.ToString("N2")</div>
+                    <div class="variation-description">
+                        @(variacionMonto > 0 ? "+" : "")@porcMonto.ToString("N1")% respecto al mes anterior
+                    </div>
+                </div>
+
+                <!-- Variación en Ganancia -->
+                <div class="variation-card @classGanancia" style="--variation-rgb: @(variacionGanancia > 0 ? "16, 185, 129" : (variacionGanancia < 0 ? "239, 68, 68" : "100, 116, 139"));">
+                    <div class="variation-header">
+                        <div class="variation-label">Variación en Ganancia</div>
+                        <div class="variation-icon">
+                            <i class="fas @iconGanancia"></i>
+                        </div>
+                    </div>
+                    <div class="variation-value">@(variacionGanancia > 0 ? "+" : "")₡@variacionGanancia.ToString("N2")</div>
+                    <div class="variation-description">
+                        @(variacionGanancia > 0 ? "+" : "")@porcGanancia.ToString("N1")% respecto al mes anterior
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-exchange-alt"></i>
+            <p>No hay datos suficientes para generar el comparativo mensual.</p>
+        </div>
+    }
+</div>

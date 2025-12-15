@@ -1,0 +1,554 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.AnalisisRentabilidad
+
+@{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
+    ViewData["Title"] = "Análisis de Rentabilidad";
+    var fechaInicio = ViewBag.FechaInicio as DateTime?;
+    var fechaFin = ViewBag.FechaFin as DateTime?;
+}
+
+<style>
+    /* ===== CONTENEDORES ===== */
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* ===== FILTROS ===== */
+    .filter-container {
+        background: #1b1f2a;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 0.875rem;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.6rem;
+        color: #ffffff;
+        font-size: 0.95rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #10b981;
+            background-color: #1b1f2a;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+    /* ===== BOTONES ===== */
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #10b981;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+            color: #ffffff;
+        }
+
+    .btn-secondary {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: #1b1f2a;
+        border-radius: 1rem;
+        border: 1px solid #2a2f3c;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease-out backwards;
+    }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--kpi-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--kpi-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+            .kpi-card:hover::before {
+                opacity: 1;
+            }
+
+    .kpi-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .kpi-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--kpi-color-bg);
+        border: 1px solid var(--kpi-color-border);
+    }
+
+    .kpi-icon {
+        font-size: 1.5rem;
+        color: var(--kpi-color);
+    }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--kpi-color);
+        line-height: 1;
+    }
+
+    .kpi-subtext {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+    }
+
+    /* Colores KPI */
+    .kpi-ventas {
+        --kpi-color: #fbbf24;
+        --kpi-color-bg: rgba(251, 191, 36, 0.1);
+        --kpi-color-border: rgba(251, 191, 36, 0.2);
+    }
+
+    .kpi-costos {
+        --kpi-color: #ef4444;
+        --kpi-color-bg: rgba(239, 68, 68, 0.1);
+        --kpi-color-border: rgba(239, 68, 68, 0.2);
+    }
+
+    .kpi-ganancia {
+        --kpi-color: #10b981;
+        --kpi-color-bg: rgba(16, 185, 129, 0.1);
+        --kpi-color-border: rgba(16, 185, 129, 0.2);
+    }
+
+    .kpi-margen {
+        --kpi-color: #3b82f6;
+        --kpi-color-bg: rgba(59, 130, 246, 0.1);
+        --kpi-color-border: rgba(59, 130, 246, 0.2);
+    }
+
+    /* ===== INFORMACIÓN ADICIONAL ===== */
+    .info-section {
+        background: #1b1f2a;
+        border: 1px solid #2a2f3c;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .info-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .info-title i {
+            color: #10b981;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.6rem;
+        padding: 1.25rem;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 1.25rem;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+    /* ===== ANIMACIONES ===== */
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .kpi-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .kpi-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .kpi-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .kpi-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    /* ===== UTILITIES ===== */
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .filter-form {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-chart-line"></i> Análisis de Rentabilidad
+        </div>
+        <div class="dashboard-subtitle">
+            @if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                <text>Período: @fechaInicio.Value.ToString("dd/MM/yyyy") - @fechaFin.Value.ToString("dd/MM/yyyy")</text>
+            }
+            else
+            {
+                <text>Métricas de ganancia y costos — InvCore360</text>
+            }
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-container">
+        <form asp-action="Rentabilidad" method="get" class="filter-form">
+            <div class="filter-group">
+                <label class="filter-label">Fecha Inicio</label>
+                <input type="date" name="fechaInicio" class="filter-input"
+                       value="@(fechaInicio?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Fecha Fin</label>
+                <input type="date" name="fechaFin" class="filter-input"
+                       value="@(fechaFin?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Aplicar Filtros
+            </button>
+        </form>
+    </div>
+
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Reportes
+        </a>
+    </div>
+
+    @if (Model != null)
+    {
+        <!-- KPIs Principales -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-ventas">
+                <div class="kpi-label">Total Ventas</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">₡@Model.TotalVentas.ToString("N2")</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-shopping-cart kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-costos">
+                <div class="kpi-label">Total Costos</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">₡@Model.TotalCostos.ToString("N2")</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-receipt kpi-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-ganancia">
+                <div class="kpi-label">Ganancia Neta</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">₡@Model.GananciaNeta.ToString("N2")</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-coins kpi-icon"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext">
+                    Después de costos
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-margen">
+                <div class="kpi-label">Margen de Ganancia</div>
+                <div class="kpi-header">
+                    <div class="kpi-value">@Model.MargenGanancia.ToString("N2")%</div>
+                    <div class="kpi-icon-wrapper">
+                        <i class="fas fa-percent kpi-icon"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext">
+                    Porcentaje de rentabilidad
+                </div>
+            </div>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="info-section">
+            <div class="info-title">
+                <i class="fas fa-info-circle"></i>
+                Detalles del Análisis
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Período Analizado</div>
+                    <div class="info-value">
+                        @if (fechaInicio.HasValue && fechaFin.HasValue)
+                        {
+                            var dias = (fechaFin.Value - fechaInicio.Value).Days + 1;
+                            <text>@dias días</text>
+                        }
+                        else
+                        {
+                            <text>Mes actual</text>
+                        }
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Rentabilidad</div>
+                    <div class="info-value" style="color: @(Model.GananciaNeta > 0 ? "#10b981" : "#ef4444");">
+                        @(Model.GananciaNeta > 0 ? "Positiva" : "Negativa")
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Relación Costo/Venta</div>
+                    <div class="info-value">
+                        @(Model.TotalVentas > 0 ? (Model.TotalCostos / Model.TotalVentas * 100).ToString("N1") : "0")%
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Estado</div>
+                    <div class="info-value" style="color: @(Model.MargenGanancia >= 20 ? "#10b981" : (Model.MargenGanancia >= 10 ? "#fbbf24" : "#ef4444"));">
+                        @if (Model.MargenGanancia >= 20)
+                        {
+                            <text>Excelente</text>
+                        }
+                        else if (Model.MargenGanancia >= 10)
+                        {
+                            <text>Bueno</text>
+                        }
+                        else
+                        {
+                            <text>Mejorable</text>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            <p>No hay datos de rentabilidad disponibles para el período seleccionado.</p>
+        </div>
+    }
+</div>

@@ -1,27 +1,335 @@
 ﻿@model List<AplicacionDeAdministracionPulperia.Model.ResumenVentas>
 
 @{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
     ViewData["Title"] = "Resumen de Ventas";
 }
 
-<h2>Resumen de Ventas</h2>
+<style>
+    /* ===== CONTENEDORES ===== */
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Día</th>
-            <th>Número de Ventas</th>
-            <th>Total Vendido</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Dia.ToString("dd/MM/yyyy")</td>
-                <td>@item.NumeroVentas</td>
-                <td>@item.TotalVendido.ToString("C")</td>
-            </tr>
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
         }
-    </tbody>
-</table>
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: #1b1f2a;
+        border-radius: 1rem;
+        border: 1px solid #2a2f3c;
+        padding: 1.75rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .kpi-card:hover {
+            border-color: #fbbf24;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .kpi-label i {
+            color: #fbbf24;
+        }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fbbf24;
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    /* ===== TABLA ===== */
+    .dashboard-card {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        padding: 0;
+        border: 1px solid #2a2f3c;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        color: #ffffff;
+        background-color: #1b1f2a !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+        .table thead {
+            background-color: #0f1419 !important;
+        }
+
+            .table thead th {
+                color: #94a3b8;
+                background-color: #0f1419 !important;
+                border-bottom: 2px solid #2a2f3c;
+                font-weight: 600;
+                font-size: 0.875rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding: 1rem 1.5rem;
+            }
+
+        .table tbody tr {
+            background-color: #1b1f2a !important;
+            border-bottom: 1px solid #2a2f3c;
+        }
+
+            .table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .table tbody tr:hover {
+                background-color: #242a38 !important;
+                transition: background-color 0.15s ease-in-out;
+            }
+
+        .table td {
+            background-color: transparent !important;
+            border-color: #2a2f3c;
+            vertical-align: middle;
+            padding: 1rem 1.5rem;
+            color: #ffffff;
+        }
+
+    .price-value {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+    /* ===== UTILITIES ===== */
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-cash-register"></i> Resumen de Ventas
+        </div>
+        <div class="dashboard-subtitle">Estadísticas detalladas de ventas por día — InvCore360</div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        var totalVentas = Model.Sum(r => r.NumeroVentas);
+        var totalMonto = Model.Sum(r => r.TotalVendido);
+        var promedioDiario = totalMonto / Model.Count;
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fas fa-calendar-day"></i>
+                    Días con Ventas
+                </div>
+                <div class="kpi-value">@Model.Count</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fas fa-shopping-cart"></i>
+                    Total de Ventas
+                </div>
+                <div class="kpi-value">@totalVentas</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Monto Total
+                </div>
+                <div class="kpi-value">₡@totalMonto.ToString("N2")</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fas fa-chart-line"></i>
+                    Promedio Diario
+                </div>
+                <div class="kpi-value">₡@promedioDiario.ToString("N2")</div>
+            </div>
+        </div>
+    }
+
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Reportes
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th class="text-center">Número de Ventas</th>
+                        <th class="text-end">Total Vendido</th>
+                        <th class="text-end">Promedio por Venta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model.OrderByDescending(r => r.Dia))
+                        {
+                            var promedio = item.NumeroVentas > 0 ? item.TotalVendido / item.NumeroVentas : 0;
+                            <tr>
+                                <td><strong>@item.Dia.ToString("dd/MM/yyyy")</strong></td>
+                                <td class="text-center">@item.NumeroVentas</td>
+                                <td class="text-end price-value">₡@item.TotalVendido.ToString("N2")</td>
+                                <td class="text-end">₡@promedio.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <p>No hay datos de ventas disponibles.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
