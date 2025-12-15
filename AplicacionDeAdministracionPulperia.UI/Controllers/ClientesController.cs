@@ -10,17 +10,47 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
 
         public IActionResult Index()
         {
-            var clientes = _bl.Listar();
-            return View(clientes);
+            try
+            {
+                var clientes = _bl.Listar();
+                return View(clientes);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al cargar clientes: {ex.Message}";
+                return View(new List<Cliente>());
+            }
         }
 
         public IActionResult Details(int id)
         {
-            var cliente = _bl.ObtenerPorId(id);
-            if (cliente == null) return NotFound();
-            return View(cliente);
+            try
+            {
+                var cliente = _bl.ObtenerPorId(id);
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
+        public IActionResult Detalles()
+        {
+            try
+            {
+                var clientesConDetalles = _bl.ListarConDetalles();
+                return View(clientesConDetalles);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -35,6 +65,7 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             try
             {
                 _bl.Crear(cliente);
+                TempData["Success"] = $"Cliente '{cliente.Nombre}' creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -44,11 +75,19 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult Edit(int id)
         {
-            var cliente = _bl.ObtenerPorId(id);
-            if (cliente == null) return NotFound();
-            return View(cliente);
+            try
+            {
+                var cliente = _bl.ObtenerPorId(id);
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
@@ -61,6 +100,7 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             try
             {
                 _bl.Actualizar(cliente);
+                TempData["Success"] = $"Cliente '{cliente.Nombre}' actualizado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -70,11 +110,19 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult Delete(int id)
         {
-            var cliente = _bl.ObtenerPorId(id);
-            if (cliente == null) return NotFound();
-            return View(cliente);
+            try
+            {
+                var cliente = _bl.ObtenerPorId(id);
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -83,14 +131,38 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
         {
             try
             {
+                var cliente = _bl.ObtenerPorId(id);
                 _bl.Eliminar(id);
+                TempData["Success"] = $"Cliente '{cliente.Nombre}' eliminado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                var cliente = _bl.ObtenerPorId(id);
-                return View(cliente);
+                TempData["Error"] = $"Error al eliminar: {ex.Message}";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+        }
+
+        public IActionResult Buscar(string nombre, string telefono)
+        {
+            try
+            {
+                var filtro = new ClienteFiltro
+                {
+                    Nombre = nombre,
+                    Telefono = telefono
+                };
+
+                var clientes = _bl.ListarConFiltros(filtro);
+                ViewBag.Nombre = nombre;
+                ViewBag.Telefono = telefono;
+
+                return View("Index", clientes);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error en búsqueda: {ex.Message}";
+                return RedirectToAction(nameof(Index));
             }
         }
     }

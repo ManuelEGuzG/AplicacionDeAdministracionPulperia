@@ -16,15 +16,25 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
 
         public IActionResult Details(int id)
         {
-            var proveedor = _bl.ObtenerPorId(id);
-            if (proveedor == null) return NotFound();
-            return View(proveedor);
+            try
+            {
+                var proveedor = _bl.ObtenerPorId(id);
+                return View(proveedor);
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        public IActionResult Create()
+        public IActionResult Detalles()
         {
-            return View();
+            var proveedoresDetalle = _bl.ListarConDetalles();
+            return View(proveedoresDetalle);
         }
+
+        [HttpGet]
+        public IActionResult Create() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -35,6 +45,7 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             try
             {
                 _bl.Crear(proveedor);
+                TempData["Success"] = "Proveedor creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -44,11 +55,18 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult Edit(int id)
         {
-            var proveedor = _bl.ObtenerPorId(id);
-            if (proveedor == null) return NotFound();
-            return View(proveedor);
+            try
+            {
+                var proveedor = _bl.ObtenerPorId(id);
+                return View(proveedor);
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
@@ -61,6 +79,7 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             try
             {
                 _bl.Actualizar(proveedor);
+                TempData["Success"] = "Proveedor actualizado.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -70,11 +89,18 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult Delete(int id)
         {
-            var proveedor = _bl.ObtenerPorId(id);
-            if (proveedor == null) return NotFound();
-            return View(proveedor);
+            try
+            {
+                var proveedor = _bl.ObtenerPorId(id);
+                return View(proveedor);
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -84,13 +110,13 @@ namespace AplicacionDeAdministracionPulperia.UI.Controllers
             try
             {
                 _bl.Eliminar(id);
+                TempData["Success"] = "Proveedor eliminado.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                var proveedor = _bl.ObtenerPorId(id);
-                return View(proveedor);
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Delete), new { id });
             }
         }
     }

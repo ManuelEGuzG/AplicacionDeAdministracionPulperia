@@ -1,33 +1,26 @@
-﻿using System.Collections.Generic;
-using AplicacionDeAdministracionPulperia.Model;
+﻿using AplicacionDeAdministracionPulperia.Model;
 
 namespace AplicacionDeAdministracionPulperia.UI.Models
 {
     public class DashboardViewModel
     {
-        /* ===============================
-           MÉTRICAS GENERALES
-           =============================== */
-
+        // Métricas Generales
         public int TotalVentas { get; set; }
         public decimal MontoTotalVentas { get; set; }
-
         public int TotalClientes { get; set; }
         public int TotalProductos { get; set; }
         public int TotalProveedores { get; set; }
 
-        /* ===============================
-           INVENTARIO
-           =============================== */
-
+        // Inventario
         public int ProductosBajoStock { get; set; }
-        public List<Producto> ProductosBajoStockList { get; set; }
+        public decimal ValorInventario { get; set; }
+        public List<Producto> ProductosBajoStockList { get; set; } = new List<Producto>();
 
-        /* ===============================
-           CLIENTES Y PROVEEDORES
-           =============================== */
+        // Listas
+        public List<Cliente> ClientesRecientes { get; set; } = new List<Cliente>();
+        public List<Proveedor> Proveedores { get; set; } = new List<Proveedor>();
 
-        public List<Cliente> ClientesRecientes { get; set; }
-        public List<Proveedor> Proveedores { get; set; }
+        // Top Productos
+        public List<TopProducto> TopProductos { get; set; } = new List<TopProducto>();
     }
 }
