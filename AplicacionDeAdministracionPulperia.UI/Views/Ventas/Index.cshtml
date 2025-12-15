@@ -1,0 +1,41 @@
+﻿@model List<AplicacionDeAdministracionPulperia.Model.Venta>
+
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+<h2>Ventas</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nueva Venta</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Tipo de Pago</th>
+            <th>Cajero</th>
+            <th>Número Recibo</th>
+            <th>Cliente</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var venta in Model)
+        {
+            <tr>
+                <td>@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@venta.Total.ToString("C")</td>
+                <td>@venta.TipoPago</td>
+                <td>@venta.Cajero</td>
+                <td>@venta.NumeroRecibo</td>
+                <td>@venta.IdCliente</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@venta.IdVenta" class="btn btn-info btn-sm">Detalles</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

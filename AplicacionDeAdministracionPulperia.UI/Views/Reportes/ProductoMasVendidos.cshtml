@@ -1,0 +1,27 @@
+﻿@model List<AplicacionDeAdministracionPulperia.Model.ProductoMasVendido>
+
+@{
+    ViewData["Title"] = "Productos Más Vendidos";
+}
+
+<h2>Productos Más Vendidos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Cantidad Vendida</th>
+            <th>Monto Generado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Nombre</td>
+                <td>@item.CantidadVendida</td>
+                <td>@item.MontoGenerado.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,55 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.MovimientoInventario
+
+@{
+    ViewBag.Title = "Registrar Movimiento";
+}
+
+<h2>Registrar Movimiento</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label>Producto (ID)</label>
+        @Html.TextBoxFor(m => m.IdProducto, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.IdProducto, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label>Fecha</label>
+        @Html.TextBoxFor(m => m.Fecha, new { @class = "form-control", type = "datetime-local" })
+        @Html.ValidationMessageFor(m => m.Fecha, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label>Cantidad</label>
+        @Html.TextBoxFor(m => m.Cantidad, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Cantidad, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label>Tipo de Movimiento</label>
+        @Html.DropDownListFor(m => m.TipoMovimiento,
+                 new SelectList(new[]
+                 {
+        "Entrada",
+        "Salida",
+        "Ajuste"
+        }),
+                 "Seleccione un tipo",
+                 new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.TipoMovimiento, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label>Notas</label>
+        @Html.TextAreaFor(m => m.Notas, new { @class = "form-control", rows = 3 })
+        @Html.ValidationMessageFor(m => m.Notas, "", new { @class = "text-danger" })
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="@Url.Action("ByProducto", "MovimientoInventario")" class="btn btn-secondary">Cancelar</a>
+
+</form>

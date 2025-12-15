@@ -1,0 +1,378 @@
+﻿@model IEnumerable<AplicacionDeAdministracionPulperia.Model.Cliente>
+
+@{
+    Layout = "~/Views/Shared/_LayoutMult.cshtml";
+    ViewData["Title"] = "Clientes";
+}
+
+<style>
+    /* ===== CONTENEDORES ===== */
+
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 40px auto;
+        padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+        border-radius: 1.2rem;
+        border: 1px solid #2a2f3c;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    .dashboard-card {
+        background: #1b1f2a;
+        border-radius: 1.2rem;
+        padding: 0;
+        border: 1px solid #2a2f3c;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+    /* ===== BOTONES PROFESIONALES ===== */
+
+    .btn {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border-color: #2563eb;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            border-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+    .btn-info {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+        .btn-info:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border-color: #f59e0b;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            border-color: #d97706;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.4);
+        }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+        border-color: #991b1b;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(153, 27, 27, 0.3);
+    }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+            border-color: #b91c1c;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(153, 27, 27, 0.4);
+        }
+
+    .btn-sm {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+        .btn-sm i {
+            margin-right: 0;
+            font-size: 0.875rem;
+        }
+
+    /* ===== TABLA OSCURA UNIFICADA ===== */
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        color: #ffffff;
+        background-color: #1b1f2a !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+        .table thead {
+            background-color: #0f1419 !important;
+        }
+
+            .table thead th {
+                color: #94a3b8;
+                background-color: #0f1419 !important;
+                border-bottom: 2px solid #2a2f3c;
+                font-weight: 600;
+                font-size: 0.875rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding: 1rem 1.5rem;
+            }
+
+        .table tbody tr {
+            background-color: #1b1f2a !important;
+            border-bottom: 1px solid #2a2f3c;
+        }
+
+            .table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+    .table-striped tbody tr:nth-of-type(odd),
+    .table-striped tbody tr:nth-of-type(even) {
+        background-color: #1b1f2a !important;
+    }
+
+    .table td,
+    .table th {
+        background-color: transparent !important;
+        border-color: #2a2f3c;
+        vertical-align: middle;
+        padding: 1rem 1.5rem;
+        color: #ffffff;
+    }
+
+    .table tbody tr:hover {
+        background-color: #242a38 !important;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    /* ===== ESTILOS ADICIONALES ===== */
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .me-1 {
+        margin-right: 0.25rem;
+    }
+
+    /* Estado vacío */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+    /* Animación de entrada */
+    .table tbody tr {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Animación del header */
+    .dashboard-header {
+        animation: slideDown 0.4s ease-out;
+    }
+
+    keyframes slideDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Animación de la card */
+    .dashboard-card {
+        animation: fadeInUp 0.5s ease-out backwards;
+        animation-delay: 0.2s;
+    }
+
+    keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">Clientes</div>
+        <div class="dashboard-subtitle">Gestión de clientes — InvCore360</div>
+    </div>
+
+    <div class="mb-4">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i>
+            <span>Nuevo Cliente</span>
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="table-wrapper">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Fecha de Creación</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.Nombre</strong>
+                                </td>
+                                <td>@item.Telefono</td>
+                                <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    <div class="action-buttons">
+                                        <a asp-action="Details" asp-route-id="@item.IdCliente" class="btn btn-info btn-sm" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver</span>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.IdCliente" class="btn btn-warning btn-sm" title="Editar cliente">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Editar</span>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.IdCliente" class="btn btn-danger btn-sm" title="Eliminar cliente">
+                                            <i class="fas fa-trash-alt"></i>
+                                            <span>Eliminar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <p>No hay clientes registrados. Crea tu primer cliente para comenzar.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

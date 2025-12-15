@@ -1,0 +1,27 @@
+﻿@model List<AplicacionDeAdministracionPulperia.Model.ResumenVentas>
+
+@{
+    ViewData["Title"] = "Resumen de Ventas";
+}
+
+<h2>Resumen de Ventas</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Día</th>
+            <th>Número de Ventas</th>
+            <th>Total Vendido</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Dia.ToString("dd/MM/yyyy")</td>
+                <td>@item.NumeroVentas</td>
+                <td>@item.TotalVendido.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>

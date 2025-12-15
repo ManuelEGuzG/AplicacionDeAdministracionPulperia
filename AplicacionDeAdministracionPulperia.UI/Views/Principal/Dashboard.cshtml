@@ -1,0 +1,672 @@
+﻿@model AplicacionDeAdministracionPulperia.UI.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>InvCore360 - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1b1f2a 100%);
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ===== HEADER ===== */
+        .dashboard-header {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+            border-radius: 1.2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            margin-bottom: 2.5rem;
+            border: 1px solid #2a2f3c;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .dashboard-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-card {
+            background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            border: 1px solid #2a2f3c;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+            .kpi-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--kpi-color);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .kpi-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+                border-color: var(--kpi-color);
+            }
+
+                .kpi-card:hover::before {
+                    opacity: 1;
+                }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--kpi-color-bg);
+            border: 1px solid var(--kpi-color-border);
+        }
+
+        .kpi-icon {
+            font-size: 1.5rem;
+            color: var(--kpi-color);
+        }
+
+        .kpi-title {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        /* KPI Colors */
+        .kpi-sales {
+            --kpi-color: #fbbf24;
+            --kpi-color-bg: rgba(251, 191, 36, 0.1);
+            --kpi-color-border: rgba(251, 191, 36, 0.2);
+        }
+
+        .kpi-clients {
+            --kpi-color: #10b981;
+            --kpi-color-bg: rgba(16, 185, 129, 0.1);
+            --kpi-color-border: rgba(16, 185, 129, 0.2);
+        }
+
+        .kpi-products {
+            --kpi-color: #3b82f6;
+            --kpi-color-bg: rgba(59, 130, 246, 0.1);
+            --kpi-color-border: rgba(59, 130, 246, 0.2);
+        }
+
+        .kpi-providers {
+            --kpi-color: #f472b6;
+            --kpi-color-bg: rgba(244, 114, 182, 0.1);
+            --kpi-color-border: rgba(244, 114, 182, 0.2);
+        }
+
+        .kpi-stock {
+            --kpi-color: #ef4444;
+            --kpi-color-bg: rgba(239, 68, 68, 0.1);
+            --kpi-color-border: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== DASHBOARD CARDS ===== */
+        .dashboard-card {
+            background: #1b1f2a;
+            border-radius: 1.2rem;
+            padding: 2rem;
+            border: 1px solid #2a2f3c;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+            .dashboard-card:hover {
+                box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #2a2f3c;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .icon-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .icon-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .icon-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .icon-warning {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        /* ===== LIST ITEMS ===== */
+        .custom-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-item {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+            .list-item:hover {
+                background: #141920;
+                border-color: #374151;
+                transform: translateX(4px);
+            }
+
+            .list-item:last-child {
+                margin-bottom: 0;
+            }
+
+        .list-item-name {
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .badge-stock {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            padding: 0.4rem 0.9rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: 1px solid #991b1b;
+        }
+
+        .badge-date {
+            background: #334155;
+            color: #94a3b8;
+            padding: 0.4rem 0.9rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: 1px solid #475569;
+        }
+
+        .provider-item {
+            background: #0f1419;
+            color: #60a5fa;
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2f3c;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .provider-item:hover {
+                background: #141920;
+                border-color: #3b82f6;
+                transform: translateX(4px);
+            }
+
+            .provider-item::before {
+                content: '\f0c0';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #3b82f6;
+            }
+
+            .provider-item:last-child {
+                margin-bottom: 0;
+            }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* ===== CHART PLACEHOLDER ===== */
+        .chart-container {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 1rem;
+            padding: 2rem;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .chart-placeholder-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .chart-placeholder-text {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .kpi-card {
+            animation: fadeInUp 0.5s ease-out backwards;
+        }
+
+            .kpi-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .kpi-card:nth-child(2) {
+                animation-delay: 0.15s;
+            }
+
+            .kpi-card:nth-child(3) {
+                animation-delay: 0.2s;
+            }
+
+            .kpi-card:nth-child(4) {
+                animation-delay: 0.25s;
+            }
+
+            .kpi-card:nth-child(5) {
+                animation-delay: 0.3s;
+            }
+
+        .dashboard-card {
+            animation: fadeInUp 0.5s ease-out backwards;
+            animation-delay: 0.4s;
+        }
+
+        keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ===== RESPONSIVE ===== */
+        media (max-width: 768px) {
+            .dashboard-container
+
+        {
+            padding: 0 1rem;
+            margin: 20px auto;
+        }
+
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+        }
+
+        .dashboard-card {
+            padding: 1.5rem;
+        }
+
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1419;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a2f3c;
+            border-radius: 5px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #374151;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+
+        <!-- HEADER REMOVED - El layout principal ya tiene el título -->
+        <!-- KPI CARDS -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="kpi-card kpi-sales">
+                    <div class="kpi-title">Ventas</div>
+                    <div class="kpi-header">
+                        <div class="kpi-value">@Model.TotalVentas</div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-chart-line kpi-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="kpi-card kpi-clients">
+                    <div class="kpi-title">Clientes</div>
+                    <div class="kpi-header">
+                        <div class="kpi-value">@Model.TotalClientes</div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-users kpi-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="kpi-card kpi-products">
+                    <div class="kpi-title">Productos</div>
+                    <div class="kpi-header">
+                        <div class="kpi-value">@Model.TotalProductos</div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-boxes kpi-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="kpi-card kpi-providers">
+                    <div class="kpi-title">Proveedores</div>
+                    <div class="kpi-header">
+                        <div class="kpi-value">@Model.TotalProveedores</div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-truck kpi-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="kpi-card kpi-stock">
+                    <div class="kpi-title">Bajo Stock</div>
+                    <div class="kpi-header">
+                        <div class="kpi-value">@Model.ProductosBajoStock</div>
+                        <div class="kpi-icon-wrapper">
+                            <i class="fas fa-exclamation-triangle kpi-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+
+                <!-- Productos Bajo Stock -->
+                <div class="dashboard-card mb-4">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon icon-danger">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            Productos próximos a agotarse
+                        </div>
+                    </div>
+
+                    @if (Model.ProductosBajoStockList != null && Model.ProductosBajoStockList.Any())
+                    {
+                        <ul class="custom-list">
+                            @foreach (var p in Model.ProductosBajoStockList)
+                            {
+                                <li class="list-item">
+                                    <span class="list-item-name">@p.Nombre</span>
+                                    <span class="badge-stock">Stock: @p.Existencias</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="empty-state-text">Inventario óptimo, sin alertas.</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Clientes Recientes -->
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon icon-success">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            Clientes recientes
+                        </div>
+                    </div>
+
+                    @if (Model.ClientesRecientes != null && Model.ClientesRecientes.Any())
+                    {
+                        <ul class="custom-list">
+                            @foreach (var c in Model.ClientesRecientes)
+                            {
+                                <li class="list-item">
+                                    <span class="list-item-name">@c.Nombre</span>
+                                    <span class="badge-date">@c.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <p class="empty-state-text">No hay clientes recientes.</p>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+            <!-- Proveedores + Gráfico -->
+            <div class="col-lg-4">
+
+                <div class="dashboard-card mb-4">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon icon-info">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            Proveedores
+                        </div>
+                    </div>
+
+                    @if (Model.Proveedores != null && Model.Proveedores.Any())
+                    {
+                        <div>
+                            @foreach (var prov in Model.Proveedores)
+                            {
+                                <div class="provider-item">@prov.Nombre</div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-warehouse"></i>
+                            </div>
+                            <p class="empty-state-text">No hay proveedores registrados.</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon icon-warning">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            Ventas
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            <div class="chart-placeholder-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <p class="chart-placeholder-text">Gráfico de ventas (Chart.js)</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

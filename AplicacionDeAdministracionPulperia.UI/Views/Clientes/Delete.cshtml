@@ -1,0 +1,396 @@
+﻿@model AplicacionDeAdministracionPulperia.Model.Cliente
+@{
+    Layout = null;
+    ViewData["Title"] = "Eliminar Cliente";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1b1f2a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .form-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .form-card {
+            background: #1b1f2a;
+            border-radius: 1.2rem;
+            border: 1px solid #2a2f3c;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .form-header {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            border-bottom: 1px solid #991b1b;
+            position: relative;
+        }
+
+            .form-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+            }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .form-subtitle {
+            font-size: 1rem;
+            color: #fecaca;
+            font-weight: 400;
+        }
+
+        .form-body {
+            padding: 2rem;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .warning-icon {
+            font-size: 1.5rem;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            flex: 1;
+        }
+
+        .warning-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-message {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .info-section {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #2a2f3c;
+        }
+
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: #94a3b8;
+            min-width: 120px;
+            font-size: 0.95rem;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .confirmation-box {
+            background: #0f1419;
+            border: 1px solid #2a2f3c;
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+            .checkbox-wrapper input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                margin-top: 2px;
+                cursor: pointer;
+                accent-color: #ef4444;
+            }
+
+        .checkbox-label {
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #2a2f3c;
+        }
+
+        .btn {
+            font-weight: 600;
+            border-radius: 0.6rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+            border-color: #991b1b;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(153, 27, 27, 0.3);
+            flex: 1;
+        }
+
+            .btn-danger:not(:disabled):hover {
+                background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+                border-color: #b91c1c;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(153, 27, 27, 0.4);
+            }
+
+            .btn-danger:active {
+                transform: translateY(0);
+            }
+
+        .btn-secondary {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+            .btn-secondary:hover {
+                background-color: #475569;
+                border-color: #64748b;
+                color: #ffffff;
+                transform: translateY(-1px);
+            }
+
+        /* Animación de entrada */
+        .form-card {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Responsive */
+        media (max-width: 768px) {
+            body
+
+        {
+            padding: 1rem;
+        }
+
+        .form-header {
+            padding: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+        }
+
+        .form-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .info-row {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            min-width: auto;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-exclamation-triangle"></i> Eliminar Cliente
+                </div>
+                <div class="form-subtitle">Esta acción no se puede deshacer</div>
+            </div>
+
+            <div class="form-body">
+                <div class="warning-box">
+                    <div class="warning-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="warning-text">
+                        <div class="warning-title">¿Estás seguro que deseas eliminar este cliente?</div>
+                        <div class="warning-message">
+                            Esta acción eliminará permanentemente toda la información del cliente del sistema.
+                            No podrás recuperar estos datos después de confirmar.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-title">Información del Cliente</div>
+                    <div class="info-row">
+                        <div class="info-label">Nombre:</div>
+                        <div class="info-value">@Model.Nombre</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Teléfono:</div>
+                        <div class="info-value">@Model.Telefono</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Fecha de Creación:</div>
+                        <div class="info-value">@Model.FechaCreacion.ToString("dd/MM/yyyy")</div>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" id="deleteForm">
+                    <input type="hidden" asp-for="IdCliente" />
+
+                    <div class="confirmation-box">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="confirm1" />
+                            <label for="confirm1" class="checkbox-label">
+                                Confirmo que he leído la advertencia y entiendo que esta acción no se puede deshacer
+                            </label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="confirm2" />
+                            <label for="confirm2" class="checkbox-label">
+                                Confirmo que deseo eliminar permanentemente a <strong style="color: #ef4444;">@Model.Nombre</strong> del sistema
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> Eliminar Permanentemente
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const confirm1 = document.getElementById('confirm1');
+        const confirm2 = document.getElementById('confirm2');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        function updateDeleteButton() {
+            if (confirm1.checked && confirm2.checked) {
+                deleteBtn.disabled = false;
+            } else {
+                deleteBtn.disabled = true;
+            }
+        }
+
+        confirm1.addEventListener('change', updateDeleteButton);
+        confirm2.addEventListener('change', updateDeleteButton);
+
+        document.getElementById('deleteForm').addEventListener('submit', function(e) {
+            if (!confirm('¿CONFIRMAS que deseas ELIMINAR este cliente? Esta es la última advertencia.')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
