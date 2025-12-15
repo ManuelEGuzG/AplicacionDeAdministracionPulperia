@@ -1,61 +1,109 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Data.SqlClient;
 using AplicacionDeAdministracionPulperia.Model;
+using Microsoft.Data.SqlClient;
 
 namespace AplicacionDeAdministracionPulperia.DA
 {
     /// <summary>
-    /// DAO especializado en reportes y análisis
+    /// Capa de acceso a datos para reportes
+    /// Maneja todas las consultas SQL relacionadas con reportes y análisis
     /// </summary>
     public class ReportesDAO : Conexion
     {
         #region Reportes Básicos
 
+        /// <summary>
+        /// Obtiene el resumen de ventas diarias desde la vista VW_ResumenVentas
+        /// </summary>
+        /// <returns>Lista de resumen de ventas por día</returns>
         public List<ResumenVentas> ObtenerResumenDiario()
         {
-            List<ResumenVentas> lista = new List<ResumenVentas>();
-            using (SqlConnection con = ObtenerConexion())
+            var lista = new List<ResumenVentas>();
+
+            try
             {
-                con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM VW_ResumenVentas ORDER BY Dia DESC", con);
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlConnection conn = new SqlConnection(_cadenaConexion);
+                conn.Open();
+                string query = @"
+                        SELECT 
+                            Dia,
+                            NumeroVentas,
+                            TotalVendido
+                        FROM VW_ResumenVentas
+                        ORDER BY Dia DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    while (dr.Read())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        lista.Add(new ResumenVentas
+                        while (reader.Read())
                         {
-                            Dia = Convert.ToDateTime(dr["Dia"]),
-                            NumeroVentas = Convert.ToInt32(dr["NumeroVentas"]),
-                            TotalVendido = Convert.ToDecimal(dr["TotalVendido"])
-                        });
+                            lista.Add(new ResumenVentas
+                            {
+                                Dia = reader.GetDateTime(0),
+                                NumeroVentas = reader.GetInt32(1),
+                                TotalVendido = reader.GetDecimal(2)
+                            });
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el resumen diario de ventas", ex);
+            }
+
             return lista;
         }
 
+        /// <summary>
+        /// Obtiene los productos más vendidos desde la vista VW_ProductosMasVendidos
+        /// </summary>
+        /// <returns>Lista de productos más vendidos</returns>
         public List<ProductoMasVendido> ObtenerProductosMasVendidos()
         {
-            List<ProductoMasVendido> lista = new List<ProductoMasVendido>();
-            using (SqlConnection con = ObtenerConexion())
+            var lista = new List<ProductoMasVendido>();
+
+            try
             {
-                con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM VW_ProductosMasVendidos ORDER BY CantidadVendida DESC", con);
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection conn = new SqlConnection(_cadenaConexion))
                 {
-                    while (dr.Read())
+                    conn.Open();
+                    string query = @"
+                        SELECT TOP 20
+                            IdProducto,
+                            Nombre,
+                            CantidadVendida,
+                            MontoGenerado
+                        FROM VW_ProductosMasVendidos
+                        ORDER BY CantidadVendida DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        lista.Add(new ProductoMasVendido
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            IdProducto = Convert.ToInt32(dr["IdProducto"]),
-                            Nombre = dr["Nombre"].ToString(),
-                            CantidadVendida = Convert.ToInt32(dr["CantidadVendida"]),
-                            MontoGenerado = Convert.ToDecimal(dr["MontoGenerado"])
-                        });
+                            while (reader.Read())
+                            {
+                                lista.Add(new ProductoMasVendido
+                                {
+                                    IdProducto = reader.GetInt32(0),
+                                    Nombre = reader.GetString(1),
+                                    CantidadVendida = reader.GetInt32(2),
+                                    MontoGenerado = reader.GetDecimal(3)
+                                });
+                            }
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener los productos más vendidos", ex);
+            }
+
             return lista;
         }
 
@@ -63,55 +111,79 @@ namespace AplicacionDeAdministracionPulperia.DA
 
         #region Top Productos
 
-        public List<TopProducto> ObtenerTopProductos(int top, DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        /// <summary>
+        /// Obtiene los productos más vendidos con filtros de fecha y cantidad
+        /// </summary>
+        /// <param name="top">Cantidad de productos a retornar (1-100)</param>
+        /// <param name="fechaInicio">Fecha de inicio (opcional)</param>
+        /// <param name="fechaFin">Fecha de fin (opcional)</param>
+        /// <returns>Lista de top productos con análisis detallado</returns>
+        public List<TopProducto> ObtenerTopProductos(int top = 10, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
-            List<TopProducto> lista = new List<TopProducto>();
-            string query = $@"
-                SELECT TOP {top} p.IdProducto, p.Codigo, p.Nombre,
-                       SUM(dv.Cantidad) AS CantidadVendida,
-                       SUM(dv.Subtotal) AS MontoGenerado,
-                       SUM(dv.Subtotal - (p.PrecioCosto * dv.Cantidad)) AS GananciaGenerada,
-                       COUNT(DISTINCT v.IdVenta) AS NumeroVentas
-                FROM DetalleVenta dv
-                JOIN Productos p ON dv.IdProducto = p.IdProducto
-                JOIN Ventas v ON dv.IdVenta = v.IdVenta
-                WHERE 1=1";
+            var lista = new List<TopProducto>();
 
-            List<SqlParameter> parametros = new List<SqlParameter>();
-            if (fechaInicio.HasValue)
+            try
             {
-                query += " AND v.Fecha >= @FechaInicio";
-                parametros.Add(new SqlParameter("@FechaInicio", fechaInicio.Value));
-            }
-            if (fechaFin.HasValue)
-            {
-                query += " AND v.Fecha <= @FechaFin";
-                parametros.Add(new SqlParameter("@FechaFin", fechaFin.Value));
-            }
-            query += " GROUP BY p.IdProducto, p.Codigo, p.Nombre ORDER BY CantidadVendida DESC";
-
-            using (SqlConnection con = ObtenerConexion())
-            {
-                con.Open();
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddRange(parametros.ToArray());
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection conn = new SqlConnection(_cadenaConexion))
                 {
-                    while (dr.Read())
+                    conn.Open();
+
+                    string query = $@"
+                        SELECT TOP {top}
+                            p.IdProducto,
+                            p.Codigo,
+                            p.Nombre,
+                            SUM(dv.Cantidad) AS CantidadVendida,
+                            SUM(dv.Subtotal) AS MontoGenerado,
+                            SUM(dv.Subtotal - (dv.Cantidad * p.PrecioCosto)) AS GananciaGenerada,
+                            COUNT(DISTINCT v.IdVenta) AS NumeroVentas
+                        FROM DetalleVenta dv
+                        INNER JOIN Productos p ON dv.IdProducto = p.IdProducto
+                        INNER JOIN Ventas v ON dv.IdVenta = v.IdVenta
+                        WHERE 1=1";
+
+                    if (fechaInicio.HasValue)
+                        query += " AND v.Fecha >= @FechaInicio";
+
+                    if (fechaFin.HasValue)
+                        query += " AND v.Fecha < @FechaFin";
+
+                    query += @"
+                        GROUP BY p.IdProducto, p.Codigo, p.Nombre
+                        ORDER BY CantidadVendida DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        lista.Add(new TopProducto
+                        if (fechaInicio.HasValue)
+                            cmd.Parameters.AddWithValue("@FechaInicio", fechaInicio.Value);
+
+                        if (fechaFin.HasValue)
+                            cmd.Parameters.AddWithValue("@FechaFin", fechaFin.Value);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            IdProducto = Convert.ToInt32(dr["IdProducto"]),
-                            Codigo = dr["Codigo"].ToString(),
-                            Nombre = dr["Nombre"].ToString(),
-                            CantidadVendida = Convert.ToInt32(dr["CantidadVendida"]),
-                            MontoGenerado = Convert.ToDecimal(dr["MontoGenerado"]),
-                            GananciaGenerada = Convert.ToDecimal(dr["GananciaGenerada"]),
-                            NumeroVentas = Convert.ToInt32(dr["NumeroVentas"])
-                        });
+                            while (reader.Read())
+                            {
+                                lista.Add(new TopProducto
+                                {
+                                    IdProducto = reader.GetInt32(0),
+                                    Codigo = reader.GetString(1),
+                                    Nombre = reader.GetString(2),
+                                    CantidadVendida = reader.GetInt32(3),
+                                    MontoGenerado = reader.GetDecimal(4),
+                                    GananciaGenerada = reader.GetDecimal(5),
+                                    NumeroVentas = reader.GetInt32(6)
+                                });
+                            }
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener los top productos", ex);
+            }
+
             return lista;
         }
 
@@ -119,49 +191,97 @@ namespace AplicacionDeAdministracionPulperia.DA
 
         #region Análisis de Rentabilidad
 
+        /// <summary>
+        /// Obtiene el análisis de rentabilidad para un período específico
+        /// Calcula métricas de ventas, costos y márgenes
+        /// </summary>
+        /// <param name="fechaInicio">Fecha de inicio del período</param>
+        /// <param name="fechaFin">Fecha de fin del período</param>
+        /// <returns>Análisis de rentabilidad con todas las métricas calculadas</returns>
         public AnalisisRentabilidad ObtenerAnalisisRentabilidad(DateTime fechaInicio, DateTime fechaFin)
         {
-            AnalisisRentabilidad analisis = new AnalisisRentabilidad
-            {
-                PeriodoInicio = fechaInicio,
-                PeriodoFin = fechaFin
-            };
+            AnalisisRentabilidad analisis = null;
 
-            string query = @"
-                SELECT COUNT(DISTINCT v.IdVenta) AS NumeroVentas,
-                       ISNULL(SUM(v.Total), 0) AS TotalVentas,
-                       ISNULL(SUM(p.PrecioCosto * dv.Cantidad), 0) AS CostoTotal,
-                       ISNULL(SUM(dv.Subtotal - (p.PrecioCosto * dv.Cantidad)), 0) AS GananciaBruta,
-                       CASE WHEN SUM(v.Total) > 0 
-                            THEN (SUM(dv.Subtotal - (p.PrecioCosto * dv.Cantidad)) / SUM(v.Total) * 100)
-                            ELSE 0 END AS MargenBruto,
-                       CASE WHEN COUNT(DISTINCT v.IdVenta) > 0 
-                            THEN SUM(v.Total) / COUNT(DISTINCT v.IdVenta)
-                            ELSE 0 END AS VentaPromedio
-                FROM Ventas v
-                JOIN DetalleVenta dv ON v.IdVenta = dv.IdVenta
-                JOIN Productos p ON dv.IdProducto = p.IdProducto
-                WHERE v.Fecha >= @FechaInicio AND v.Fecha <= @FechaFin";
-
-            using (SqlConnection con = ObtenerConexion())
+            try
             {
-                con.Open();
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@FechaInicio", fechaInicio);
-                cmd.Parameters.AddWithValue("@FechaFin", fechaFin);
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection conn = new SqlConnection(_cadenaConexion))
                 {
-                    if (dr.Read())
+                    conn.Open();
+
+                    string query = @"
+                        WITH VentasDelPeriodo AS (
+                            SELECT 
+                                v.IdVenta,
+                                v.Total,
+                                SUM(dv.Cantidad * p.PrecioCosto) AS CostoVenta
+                            FROM Ventas v
+                            INNER JOIN DetalleVenta dv ON v.IdVenta = dv.IdVenta
+                            INNER JOIN Productos p ON dv.IdProducto = p.IdProducto
+                            WHERE v.Fecha >= @FechaInicio AND v.Fecha < @FechaFin
+                            GROUP BY v.IdVenta, v.Total
+                        )
+                        SELECT 
+                            COUNT(*) AS NumeroVentas,
+                            ISNULL(SUM(Total), 0) AS TotalVentas,
+                            ISNULL(SUM(CostoVenta), 0) AS CostoTotal,
+                            ISNULL(SUM(Total - CostoVenta), 0) AS GananciaBruta,
+                            CASE 
+                                WHEN SUM(Total) > 0 THEN 
+                                    (SUM(Total - CostoVenta) / SUM(Total)) * 100
+                                ELSE 0 
+                            END AS MargenBruto,
+                            CASE 
+                                WHEN COUNT(*) > 0 THEN 
+                                    SUM(Total) / COUNT(*)
+                                ELSE 0 
+                            END AS VentaPromedio
+                        FROM VentasDelPeriodo";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        analisis.NumeroVentas = Convert.ToInt32(dr["NumeroVentas"]);
-                        analisis.TotalVentas = Convert.ToDecimal(dr["TotalVentas"]);
-                        analisis.CostoTotal = Convert.ToDecimal(dr["CostoTotal"]);
-                        analisis.GananciaBruta = Convert.ToDecimal(dr["GananciaBruta"]);
-                        analisis.MargenBruto = Convert.ToDecimal(dr["MargenBruto"]);
-                        analisis.VentaPromedio = Convert.ToDecimal(dr["VentaPromedio"]);
+                        cmd.Parameters.AddWithValue("@FechaInicio", fechaInicio);
+                        cmd.Parameters.AddWithValue("@FechaFin", fechaFin);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                analisis = new AnalisisRentabilidad
+                                {
+                                    NumeroVentas = reader.GetInt32(0),
+                                    TotalVentas = reader.GetDecimal(1),
+                                    CostoTotal = reader.GetDecimal(2),
+                                    GananciaBruta = reader.GetDecimal(3),
+                                    MargenBruto = reader.GetDecimal(4),
+                                    VentaPromedio = reader.GetDecimal(5),
+                                    PeriodoInicio = fechaInicio,
+                                    PeriodoFin = fechaFin
+                                };
+                            }
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el análisis de rentabilidad", ex);
+            }
+
+            if (analisis == null)
+            {
+                analisis = new AnalisisRentabilidad
+                {
+                    NumeroVentas = 0,
+                    TotalVentas = 0,
+                    CostoTotal = 0,
+                    GananciaBruta = 0,
+                    MargenBruto = 0,
+                    VentaPromedio = 0,
+                    PeriodoInicio = fechaInicio,
+                    PeriodoFin = fechaFin
+                };
+            }
+
             return analisis;
         }
 
@@ -169,36 +289,67 @@ namespace AplicacionDeAdministracionPulperia.DA
 
         #region Estadísticas Generales
 
+        /// <summary>
+        /// Obtiene estadísticas generales del sistema
+        /// Retorna un diccionario con métricas clave
+        /// </summary>
+        /// <returns>Diccionario con todas las estadísticas del sistema</returns>
         public Dictionary<string, object> ObtenerEstadisticasGenerales()
         {
-            Dictionary<string, object> stats = new Dictionary<string, object>();
-            using (SqlConnection con = ObtenerConexion())
+            var stats = new Dictionary<string, object>();
+
+            try
             {
-                con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Productos", con);
-                stats["TotalProductos"] = (int)cmd.ExecuteScalar();
+                using (SqlConnection conn = new SqlConnection(_cadenaConexion))
+                {
+                    conn.Open();
 
-                cmd = new SqlCommand("SELECT COUNT(*) FROM Clientes", con);
-                stats["TotalClientes"] = (int)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT COUNT(*) FROM Proveedores", con);
-                stats["TotalProveedores"] = (int)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT COUNT(*) FROM Ventas", con);
-                stats["TotalVentas"] = (int)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT COUNT(*) FROM Productos WHERE Existencias <= PuntoReorden", con);
-                stats["ProductosBajoStock"] = (int)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT ISNULL(SUM(Existencias * PrecioCosto), 0) FROM Productos", con);
-                stats["ValorInventario"] = (decimal)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT ISNULL(SUM(Total), 0) FROM Ventas WHERE CAST(Fecha AS DATE) = CAST(GETDATE() AS DATE)", con);
-                stats["VentasHoy"] = (decimal)cmd.ExecuteScalar();
-
-                cmd = new SqlCommand("SELECT ISNULL(SUM(Total), 0) FROM Ventas WHERE YEAR(Fecha) = YEAR(GETDATE()) AND MONTH(Fecha) = MONTH(GETDATE())", con);
-                stats["VentasMes"] = (decimal)cmd.ExecuteScalar();
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Productos", conn))
+                    {
+                        stats["TotalProductos"] = (int)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Clientes", conn))
+                    {
+                        stats["TotalClientes"] = (int)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Proveedores", conn))
+                    {
+                        stats["TotalProveedores"] = (int)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Ventas", conn))
+                    {
+                        stats["TotalVentas"] = (int)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Productos WHERE Existencias <= PuntoReorden", conn))
+                    {
+                        stats["ProductosBajoStock"] = (int)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(SUM(Existencias * PrecioCosto), 0) FROM Productos", conn))
+                    {
+                        stats["ValorInventario"] = (decimal)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand(@"
+                        SELECT ISNULL(SUM(Total), 0) 
+                        FROM Ventas 
+                        WHERE CAST(Fecha AS DATE) = CAST(GETDATE() AS DATE)", conn))
+                    {
+                        stats["VentasHoy"] = (decimal)cmd.ExecuteScalar();
+                    }
+                    using (SqlCommand cmd = new SqlCommand(@"
+                        SELECT ISNULL(SUM(Total), 0) 
+                        FROM Ventas 
+                        WHERE YEAR(Fecha) = YEAR(GETDATE()) 
+                        AND MONTH(Fecha) = MONTH(GETDATE())", conn))
+                    {
+                        stats["VentasMes"] = (decimal)cmd.ExecuteScalar();
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener las estadísticas generales", ex);
+            }
+
             return stats;
         }
 

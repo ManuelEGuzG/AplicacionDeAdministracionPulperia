@@ -8,6 +8,8 @@ namespace AplicacionDeAdministracionPulperia.BL
     public class ReportesBL
     {
         private readonly ReportesDAO _dao = new ReportesDAO();
+        private readonly ProductoDAO _productoDao = new ProductoDAO();
+        private readonly ClienteDAO _clienteDao = new ClienteDAO();
 
         #region Reportes Básicos
 
@@ -125,43 +127,40 @@ namespace AplicacionDeAdministracionPulperia.BL
 
         #endregion
 
-        #region Estadísticas Generales
-
-        /// <summary>
-        /// Obtiene las estadísticas generales del sistema
-        /// </summary>
-        /// <returns>Diccionario con las estadísticas</returns>
-        public Dictionary<string, object> ObtenerEstadisticasGenerales()
-        {
-            return _dao.ObtenerEstadisticasGenerales();
-        }
-
-        #endregion
-
         #region Dashboard
 
         /// <summary>
         /// Genera un dashboard completo con todas las estadísticas principales
         /// </summary>
-        /// <returns>Reporte de dashboard</returns>
-        public ReporteDashboard GenerarDashboard()
+        /// <returns>Dashboard con todas las métricas</returns>
+        public DashboardReportes GenerarDashboard()
         {
             var stats = _dao.ObtenerEstadisticasGenerales();
-            var hoy = DateTime.Today;
+            var rentabilidadMes = ObtenerRentabilidadMesActual();
 
-            return new ReporteDashboard
+            // Calcular ticket promedio
+            int totalVentas = (int)stats["TotalVentas"];
+            decimal montoVentasMes = (decimal)stats["VentasMes"];
+            decimal ticketPromedio = totalVentas > 0 ? montoVentasMes / totalVentas : 0;
+
+            // Calcular margen promedio
+            decimal gananciaTotal = rentabilidadMes != null ? rentabilidadMes.GananciaBruta : 0;
+            decimal totalVentasDecimal = rentabilidadMes != null ? rentabilidadMes.TotalVentas : 0;
+            decimal margenPromedio = totalVentasDecimal > 0 ? (gananciaTotal / totalVentasDecimal * 100) : 0;
+
+            return new DashboardReportes
             {
                 FechaGeneracion = DateTime.Now,
                 TotalProductos = (int)stats["TotalProductos"],
                 TotalClientes = (int)stats["TotalClientes"],
-                TotalProveedores = (int)stats["TotalProveedores"],
-                TotalVentas = (int)stats["TotalVentas"],
+                TotalVentas = totalVentasDecimal,
+                GananciaTotal = gananciaTotal,
                 ProductosBajoStock = (int)stats["ProductosBajoStock"],
                 ValorInventario = (decimal)stats["ValorInventario"],
-                VentasHoy = (decimal)stats["VentasHoy"],
-                VentasMes = (decimal)stats["VentasMes"],
-                TopProductos = _dao.ObtenerTopProductos(5),
-                RentabilidadMes = ObtenerRentabilidadMesActual()
+                VentasMes = totalVentas,
+                TicketPromedio = ticketPromedio,
+                MargenPromedio = margenPromedio,
+                RotacionPromedio = 0 // Se puede calcular con más datos
             };
         }
 
@@ -170,13 +169,40 @@ namespace AplicacionDeAdministracionPulperia.BL
         #region Reportes Comparativos
 
         /// <summary>
-        /// Genera un reporte comparativo entre dos períodos
+        /// Compara el mes actual con el mes anterior
         /// </summary>
-        /// <param name="fechaInicio1">Fecha inicio del período 1</param>
-        /// <param name="fechaFin1">Fecha fin del período 1</param>
-        /// <param name="fechaInicio2">Fecha inicio del período 2</param>
-        /// <param name="fechaFin2">Fecha fin del período 2</param>
-        /// <returns>Reporte comparativo</returns>
+        public ComparativoMensual CompararMesActualConAnterior()
+        {
+            var hoy = DateTime.Today;
+
+            // Mes actual
+            var inicioMesActual = new DateTime(hoy.Year, hoy.Month, 1);
+            var finMesActual = hoy;
+
+            // Mes anterior
+            var inicioMesAnterior = inicioMesActual.AddMonths(-1);
+            var finMesAnterior = inicioMesActual.AddDays(-1);
+
+            // Obtener datos de ambos períodos
+            var rentabilidadActual = _dao.ObtenerAnalisisRentabilidad(inicioMesActual, finMesActual);
+            var rentabilidadAnterior = _dao.ObtenerAnalisisRentabilidad(inicioMesAnterior, finMesAnterior);
+
+            return new ComparativoMensual
+            {
+                MesActual = inicioMesActual.ToString("MMMM yyyy"),
+                MesAnterior = inicioMesAnterior.ToString("MMMM yyyy"),
+                VentasMesActual = rentabilidadActual.NumeroVentas,
+                MontoMesActual = rentabilidadActual.TotalVentas,
+                GananciaMesActual = rentabilidadActual.GananciaBruta,
+                VentasMesAnterior = rentabilidadAnterior.NumeroVentas,
+                MontoMesAnterior = rentabilidadAnterior.TotalVentas,
+                GananciaMesAnterior = rentabilidadAnterior.GananciaBruta
+            };
+        }
+
+        /// <summary>
+        /// Genera un reporte comparativo entre dos períodos personalizados
+        /// </summary>
         public ReporteComparativo GenerarReporteComparativo(
             DateTime fechaInicio1, DateTime fechaFin1,
             DateTime fechaInicio2, DateTime fechaFin2)
@@ -201,27 +227,6 @@ namespace AplicacionDeAdministracionPulperia.BL
                     ? ((periodo2.TotalVentas - periodo1.TotalVentas) / periodo1.TotalVentas * 100)
                     : 0
             };
-        }
-
-        /// <summary>
-        /// Compara el mes actual con el mes anterior
-        /// </summary>
-        public ReporteComparativo CompararMesActualConAnterior()
-        {
-            var hoy = DateTime.Today;
-
-            // Mes actual
-            var inicioMesActual = new DateTime(hoy.Year, hoy.Month, 1);
-            var finMesActual = inicioMesActual.AddMonths(1).AddDays(-1);
-
-            // Mes anterior
-            var inicioMesAnterior = inicioMesActual.AddMonths(-1);
-            var finMesAnterior = inicioMesActual.AddDays(-1);
-
-            return GenerarReporteComparativo(
-                inicioMesAnterior, finMesAnterior,
-                inicioMesActual, finMesActual
-            );
         }
 
         /// <summary>

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Reportes\ksefmrag.mgg~" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AplicacionDeAdministracionPulperia.BL\AplicacionDeAdministracionPulperia.BL.csproj" />
   </ItemGroup>
 
