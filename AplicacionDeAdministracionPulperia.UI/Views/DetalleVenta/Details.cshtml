@@ -173,3 +173,146 @@
         .details-card {
             animation: slideUp 0.4s ease-out;
         }
+
+        keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        media (max-width: 768px) {
+            body
+
+        {
+            padding: 1rem;
+        }
+
+        .details-header {
+            padding: 1.5rem;
+        }
+
+        .details-title {
+            font-size: 1.75rem;
+        }
+
+        .details-body {
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="details-container">
+        <div class="details-card">
+            <div class="details-header">
+                <div class="details-title">
+                    <i class="fas fa-file-invoice-dollar"></i> Detalle de Item
+                </div>
+                <div class="details-subtitle">Información del detalle de venta</div>
+            </div>
+
+            <div class="details-body">
+                <!-- Información del Producto -->
+                @if (producto != null)
+                {
+                    <div class="info-section">
+                        <div class="section-title">
+                            <i class="fas fa-box"></i>
+                            Información del Producto
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Código</div>
+                                <div class="info-value">@producto.Codigo</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Nombre</div>
+                                <div class="info-value">@producto.Nombre</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Información del Detalle -->
+                <div class="info-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Detalles de la Venta
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Cantidad</div>
+                            <div class="info-value">@Model.Cantidad unidades</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Precio Unitario</div>
+                            <div class="info-value price-value">₡@Model.PrecioUnitario.ToString("N2")</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Subtotal</div>
+                            <div class="info-value price-value">₡@Model.Subtotal.ToString("N2")</div>
+                        </div>
+                        @if (producto != null)
+                        {
+                            var ganancia = Model.Subtotal - (producto.PrecioCosto * Model.Cantidad);
+                            <div class="info-item">
+                                <div class="info-label">Ganancia</div>
+                                <div class="info-value price-value">₡@ganancia.ToString("N2")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Información de la Venta -->
+                @if (venta != null)
+                {
+                    <div class="info-section">
+                        <div class="section-title">
+                            <i class="fas fa-receipt"></i>
+                            Información de la Venta
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Recibo</div>
+                                <div class="info-value">@venta.NumeroRecibo</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Fecha</div>
+                                <div class="info-value">@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Cajero</div>
+                                <div class="info-value">@venta.Cajero</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total Venta</div>
+                                <div class="info-value price-value">₡@venta.Total.ToString("N2")</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="actions-section">
+                    <a asp-controller="Ventas" asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a Ventas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -36,42 +36,6 @@
             padding: 0 1.5rem;
         }
 
-        /* ===== HEADER ===== */
-        .dashboard-header {
-            padding: 2.5rem;
-            background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
-            border-radius: 1.2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            margin-bottom: 2.5rem;
-            border: 1px solid #2a2f3c;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .dashboard-header::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-            }
-
-        .dashboard-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .dashboard-subtitle {
-            font-size: 1.1rem;
-            color: #94a3b8;
-            font-weight: 400;
-        }
-
         /* ===== KPI CARDS ===== */
         .kpi-card {
             background: linear-gradient(135deg, #1b1f2a 0%, #232835 100%);
@@ -432,14 +396,6 @@
             margin: 20px auto;
         }
 
-        .dashboard-header {
-            padding: 1.5rem;
-        }
-
-        .dashboard-title {
-            font-size: 2rem;
-        }
-
         .kpi-value {
             font-size: 1.75rem;
         }
@@ -473,7 +429,6 @@
 <body>
     <div class="dashboard-container">
 
-        <!-- HEADER REMOVED - El layout principal ya tiene el título -->
         <!-- KPI CARDS -->
         <div class="row g-3 mb-4">
             <div class="col-lg-2 col-md-4 col-6">
