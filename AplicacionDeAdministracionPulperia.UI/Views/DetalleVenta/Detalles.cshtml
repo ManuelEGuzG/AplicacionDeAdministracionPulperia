@@ -1,8 +1,8 @@
-﻿@model IEnumerable<AplicacionDeAdministracionPulperia.Model.DetalleVenta>
+﻿@model List<dynamic>
 
 @{
     Layout = "~/Views/Shared/_LayoutMult.cshtml";
-    ViewData["Title"] = "Detalles de Venta";
+    ViewData["Title"] = "Detalles Extendidos de Venta";
     var venta = ViewBag.Venta as AplicacionDeAdministracionPulperia.Model.Venta;
     var idVenta = ViewBag.IdVenta;
 }
@@ -33,7 +33,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
         }
 
     .dashboard-title {
@@ -98,28 +98,16 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        animation: slideDown 0.3s ease-out;
     }
 
-    .alert-info {
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
     }
 
     .alert i {
         font-size: 1.25rem;
-    }
-
-    keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     /* ===== BOTONES ===== */
@@ -147,24 +135,6 @@
             color: #ffffff;
             transform: translateY(-1px);
         }
-
-    .btn-info {
-        background-color: #334155;
-        border-color: #475569;
-        color: #e2e8f0;
-    }
-
-        .btn-info:hover {
-            background-color: #475569;
-            border-color: #64748b;
-            color: #ffffff;
-            transform: translateY(-1px);
-        }
-
-    .btn-sm {
-        padding: 0.35rem 0.75rem;
-        font-size: 0.875rem;
-    }
 
     /* ===== TABLA ===== */
     .dashboard-card {
@@ -226,28 +196,55 @@
             color: #ffffff;
         }
 
-    /* ===== TOTAL SECTION ===== */
-    .total-section {
+    /* ===== BADGES ===== */
+    .badge-code {
+        background: #334155;
+        color: #94a3b8;
+        padding: 0.4rem 0.9rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border: 1px solid #475569;
+    }
+
+    .profit-positive {
+        color: #10b981;
+    }
+
+    .profit-negative {
+        color: #ef4444;
+    }
+
+    /* ===== SUMMARY SECTION ===== */
+    .summary-section {
         background: #0f1419;
         border: 1px solid #2a2f3c;
         border-radius: 1rem;
         padding: 1.5rem;
         margin-top: 1.5rem;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 1rem;
     }
 
-    .total-label {
-        font-size: 1.25rem;
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .summary-item {
+        text-align: center;
+    }
+
+    .summary-label {
+        font-size: 0.875rem;
         color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
         font-weight: 600;
     }
 
-    .total-value {
-        font-size: 2rem;
-        color: #10b981;
+    .summary-value {
+        font-size: 1.75rem;
         font-weight: 700;
     }
 
@@ -296,13 +293,9 @@
             font-size: 2rem;
         }
 
-        .info-grid {
+        .info-grid,
+        .summary-grid {
             grid-template-columns: 1fr;
-        }
-
-        .total-section {
-            flex-direction: column;
-            align-items: flex-end;
         }
     }
 </style>
@@ -310,16 +303,16 @@
 <div class="dashboard-container">
     <div class="dashboard-header">
         <div class="dashboard-title">
-            <i class="fas fa-file-invoice"></i> Detalles de Venta
+            <i class="fas fa-file-invoice-dollar"></i> Detalles Extendidos
         </div>
         <div class="dashboard-subtitle">
             @if (venta != null)
             {
-                <text>Recibo: @venta.NumeroRecibo — InvCore360</text>
+                <text>Análisis completo de venta — Recibo: @venta.NumeroRecibo</text>
             }
             else
             {
-                <text>InvCore360</text>
+                <text>Análisis completo de venta — InvCore360</text>
             }
         </div>
     </div>
@@ -329,14 +322,6 @@
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle"></i>
                 <span>@TempData["Error"]</span>
-            </div>
-    }
-
-    @if (TempData["Info"] != null)
-    {
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <span>@TempData["Info"]</span>
             </div>
     }
 
@@ -357,7 +342,7 @@
                         <span class="info-value">@venta.Cajero</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Total</span>
+                        <span class="info-label">Total Venta</span>
                         <span class="info-value price-value">₡@venta.Total.ToString("N2")</span>
                     </div>
                 </div>
@@ -371,9 +356,9 @@
         </a>
         @if (idVenta != null)
         {
-                <a asp-action="Detalles" asp-route-idVenta="@idVenta" class="btn btn-info">
-                    <i class="fas fa-list-ul"></i>
-                    <span>Ver Detalles Extendidos</span>
+                <a asp-action="Index" asp-route-idVenta="@idVenta" class="btn btn-secondary">
+                    <i class="fas fa-list"></i>
+                    <span>Vista Simple</span>
                 </a>
         }
     </div>
@@ -383,12 +368,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Código</th>
                         <th>Producto</th>
                         <th class="text-center">Cantidad</th>
                         <th class="text-end">Precio Unit.</th>
                         <th class="text-end">Subtotal</th>
-                        <th class="text-end">Acciones</th>
+                        <th class="text-end">Ganancia</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -397,16 +382,20 @@
                         @foreach (var detalle in Model)
                         {
                                     <tr>
-                                        <td><strong>#@detalle.IdDetalle</strong></td>
-                                        <td>Producto #@detalle.IdProducto</td>
+                                        <td>
+                                            <span class="badge-code">@detalle.CodigoProducto</span>
+                                        </td>
+                                        <td><strong>@detalle.NombreProducto</strong></td>
                                         <td class="text-center">@detalle.Cantidad</td>
                                         <td class="text-end price-value">₡@detalle.PrecioUnitario.ToString("N2")</td>
                                         <td class="text-end price-value">₡@detalle.Subtotal.ToString("N2")</td>
                                         <td class="text-end">
-                                            <a asp-action="Details" asp-route-id="@detalle.IdDetalle" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                                <span>Ver</span>
-                                            </a>
+                                    @{
+                                        var gananciaClass = detalle.Ganancia >= 0 ? "profit-positive" : "profit-negative";
+                                    }
+                                            <span class="@gananciaClass">
+                                                <strong>₡@detalle.Ganancia.ToString("N2")</strong>
+                                            </span>
                                         </td>
                                     </tr>
                         }
@@ -428,9 +417,29 @@
 
         @if (Model != null && Model.Any())
         {
-                <div class="total-section">
-                    <span class="total-label">TOTAL:</span>
-                    <span class="total-value">₡@Model.Sum(d => d.Subtotal).ToString("N2")</span>
+            var totalVenta = Model.Sum(d => d.Subtotal);
+            var totalGanancia = Model.Sum(d => d.Ganancia);
+            var margenPromedio = totalVenta > 0 ? (totalGanancia / totalVenta * 100) : 0;
+
+                <div class="summary-section">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Total Venta</div>
+                            <div class="summary-value price-value">₡@totalVenta.ToString("N2")</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Ganancia Total</div>
+                            <div class="summary-value" style="color: #10b981;">₡@totalGanancia.ToString("N2")</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Margen Promedio</div>
+                            <div class="summary-value" style="color: #f59e0b;">@margenPromedio.ToString("N1")%</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Items Vendidos</div>
+                            <div class="summary-value" style="color: #60a5fa;">@Model.Count</div>
+                        </div>
+                    </div>
                 </div>
         }
     </div>

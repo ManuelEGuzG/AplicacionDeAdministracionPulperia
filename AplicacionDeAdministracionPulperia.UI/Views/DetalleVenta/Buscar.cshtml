@@ -2,9 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutMult.cshtml";
-    ViewData["Title"] = "Detalles de Venta";
-    var venta = ViewBag.Venta as AplicacionDeAdministracionPulperia.Model.Venta;
-    var idVenta = ViewBag.IdVenta;
+    ViewData["Title"] = "Buscar Detalles de Venta";
 }
 
 <style>
@@ -33,7 +31,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
         }
 
     .dashboard-title {
@@ -50,44 +48,61 @@
         font-weight: 400;
     }
 
-    /* ===== INFO CARD ===== */
-    .info-card {
+    /* ===== BARRA DE BÚSQUEDA ===== */
+    .search-container {
         background: #1b1f2a;
-        border: 1px solid #2a2f3c;
         border-radius: 1rem;
         padding: 1.5rem;
+        border: 1px solid #2a2f3c;
         margin-bottom: 2rem;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .info-item {
+    .search-form {
         display: flex;
-        flex-direction: column;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
     }
 
-    .info-label {
-        font-size: 0.875rem;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+    .search-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .search-label {
+        display: block;
         margin-bottom: 0.5rem;
         font-weight: 600;
+        color: #e2e8f0;
+        font-size: 0.875rem;
     }
 
-    .info-value {
-        font-size: 1.25rem;
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: #0f1419;
+        border: 1px solid #2a2f3c;
+        border-radius: 0.6rem;
         color: #ffffff;
-        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease-in-out;
     }
 
-    .price-value {
-        color: #10b981;
+        .search-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background-color: #1b1f2a;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+    .search-buttons {
+        display: flex;
+        gap: 0.75rem;
     }
 
     /* ===== ALERTAS ===== */
@@ -98,7 +113,12 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        animation: slideDown 0.3s ease-out;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
     }
 
     .alert-info {
@@ -109,17 +129,6 @@
 
     .alert i {
         font-size: 1.25rem;
-    }
-
-    keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     /* ===== BOTONES ===== */
@@ -133,7 +142,23 @@
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
+        cursor: pointer;
     }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        border-color: #8b5cf6;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            border-color: #7c3aed;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.4);
+            color: #ffffff;
+        }
 
     .btn-secondary {
         background-color: #334155;
@@ -226,29 +251,9 @@
             color: #ffffff;
         }
 
-    /* ===== TOTAL SECTION ===== */
-    .total-section {
-        background: #0f1419;
-        border: 1px solid #2a2f3c;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-top: 1.5rem;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .total-label {
-        font-size: 1.25rem;
-        color: #94a3b8;
-        font-weight: 600;
-    }
-
-    .total-value {
-        font-size: 2rem;
+    .price-value {
         color: #10b981;
-        font-weight: 700;
+        font-weight: 600;
     }
 
     /* ===== EMPTY STATE ===== */
@@ -296,32 +301,31 @@
             font-size: 2rem;
         }
 
-        .info-grid {
-            grid-template-columns: 1fr;
+        .search-form {
+            flex-direction: column;
         }
 
-        .total-section {
-            flex-direction: column;
-            align-items: flex-end;
+        .search-group {
+            width: 100%;
         }
+
+        .search-buttons {
+            width: 100%;
+            flex-direction: column;
+        }
+
+            .search-buttons .btn {
+                width: 100%;
+            }
     }
 </style>
 
 <div class="dashboard-container">
     <div class="dashboard-header">
         <div class="dashboard-title">
-            <i class="fas fa-file-invoice"></i> Detalles de Venta
+            <i class="fas fa-search"></i> Buscar Detalles de Venta
         </div>
-        <div class="dashboard-subtitle">
-            @if (venta != null)
-            {
-                <text>Recibo: @venta.NumeroRecibo — InvCore360</text>
-            }
-            else
-            {
-                <text>InvCore360</text>
-            }
-        </div>
+        <div class="dashboard-subtitle">Filtra los detalles por venta o producto — InvCore360</div>
     </div>
 
     @if (TempData["Error"] != null)
@@ -332,59 +336,66 @@
             </div>
     }
 
-    @if (TempData["Info"] != null)
-    {
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <span>@TempData["Info"]</span>
+    <!-- Búsqueda -->
+    <div class="search-container">
+        <form asp-action="Buscar" method="get" class="search-form">
+            <div class="search-group">
+                <label class="search-label">ID de Venta</label>
+                <input type="number" name="idVenta" class="search-input" 
+                       placeholder="Ingresa el ID de la venta..." 
+                       value="@ViewBag.IdVenta" />
             </div>
-    }
-
-    @if (venta != null)
-    {
-            <div class="info-card">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Fecha</span>
-                        <span class="info-value">@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Tipo de Pago</span>
-                        <span class="info-value">@venta.TipoPago</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Cajero</span>
-                        <span class="info-value">@venta.Cajero</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Total</span>
-                        <span class="info-value price-value">₡@venta.Total.ToString("N2")</span>
-                    </div>
-                </div>
+            <div class="search-group">
+                <label class="search-label">ID de Producto</label>
+                <input type="number" name="idProducto" class="search-input" 
+                       placeholder="Ingresa el ID del producto..." 
+                       value="@ViewBag.IdProducto" />
             </div>
-    }
-
-    <div class="mb-4">
-        <a asp-controller="Ventas" asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i>
-            <span>Volver a Ventas</span>
-        </a>
-        @if (idVenta != null)
-        {
-                <a asp-action="Detalles" asp-route-idVenta="@idVenta" class="btn btn-info">
-                    <i class="fas fa-list-ul"></i>
-                    <span>Ver Detalles Extendidos</span>
+            <div class="search-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <a asp-controller="Ventas" asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Limpiar
                 </a>
-        }
+            </div>
+        </form>
     </div>
 
+    @if (ViewBag.IdVenta != null || ViewBag.IdProducto != null)
+    {
+            <div class="alert alert-info">
+                <i class="fas fa-filter"></i>
+                <span>
+                    Mostrando resultados filtrados
+                @if (ViewBag.IdVenta != null)
+                {
+                    <text>para venta #@ViewBag.IdVenta</text>
+                }
+                @if (ViewBag.IdProducto != null)
+                {
+                    <text>y producto #@ViewBag.IdProducto</text>
+                }
+                </span>
+            </div>
+    }
+
+    <!-- Botón Volver -->
+    <div class="mb-4">
+        <a asp-controller="Ventas" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Ventas
+        </a>
+    </div>
+
+    <!-- Tabla de Resultados -->
     <div class="dashboard-card">
         <div class="table-wrapper">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Producto</th>
+                        <th>ID Detalle</th>
+                        <th>ID Venta</th>
+                        <th>ID Producto</th>
                         <th class="text-center">Cantidad</th>
                         <th class="text-end">Precio Unit.</th>
                         <th class="text-end">Subtotal</th>
@@ -398,14 +409,15 @@
                         {
                                     <tr>
                                         <td><strong>#@detalle.IdDetalle</strong></td>
+                                        <td>Venta #@detalle.IdVenta</td>
                                         <td>Producto #@detalle.IdProducto</td>
                                         <td class="text-center">@detalle.Cantidad</td>
                                         <td class="text-end price-value">₡@detalle.PrecioUnitario.ToString("N2")</td>
                                         <td class="text-end price-value">₡@detalle.Subtotal.ToString("N2")</td>
                                         <td class="text-end">
-                                            <a asp-action="Details" asp-route-id="@detalle.IdDetalle" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                                <span>Ver</span>
+                                            <a asp-action="Details" asp-route-id="@detalle.IdDetalle" 
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> Ver
                                             </a>
                                         </td>
                                     </tr>
@@ -414,10 +426,19 @@
                     else
                     {
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="empty-state">
-                                        <i class="fas fa-inbox"></i>
-                                        <p>No hay detalles para esta venta.</p>
+                                        <i class="fas fa-search"></i>
+                                        <p>
+                                        @if (ViewBag.IdVenta != null || ViewBag.IdProducto != null)
+                                        {
+                                            <text>No se encontraron detalles con los criterios de búsqueda especificados.</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Utiliza los filtros de búsqueda para encontrar detalles de venta específicos.</text>
+                                        }
+                                        </p>
                                     </div>
                                 </td>
                             </tr>
@@ -425,13 +446,5 @@
                 </tbody>
             </table>
         </div>
-
-        @if (Model != null && Model.Any())
-        {
-                <div class="total-section">
-                    <span class="total-label">TOTAL:</span>
-                    <span class="total-value">₡@Model.Sum(d => d.Subtotal).ToString("N2")</span>
-                </div>
-        }
     </div>
 </div>

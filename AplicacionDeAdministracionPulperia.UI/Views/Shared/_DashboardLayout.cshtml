@@ -49,6 +49,7 @@
             justify-content: space-between;
             position: relative;
             overflow: hidden;
+            animation: slideDown 0.5s ease-out;
         }
 
             .dashboard-header::before {
@@ -126,7 +127,7 @@
                     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
                 }
 
-                /* Tooltip persoalizado */
+                /* Tooltip personalizado */
                 .nav-dashboard a::after {
                     content: attr(title);
                     position: absolute;
@@ -157,7 +158,8 @@
             animation: fadeIn 0.4s ease-out;
         }
 
-       keyframes fadeIn {
+        /* ===== ANIMACIONES ===== */
+        keyframes fadeIn {
             from
 
         {
@@ -171,6 +173,39 @@
         }
 
         }
+
+       keyframes slideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1419;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a2f3c;
+            border-radius: 5px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #374151;
+            }
 
         /* ===== RESPONSIVE ===== */
         media (max-width: 992px) {
@@ -218,44 +253,6 @@
         }
 
         }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #0f1419;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #2a2f3c;
-            border-radius: 5px;
-        }
-
-            ::-webkit-scrollbar-thumb:hover {
-                background: #374151;
-            }
-
-        /* ===== ANIMACIÓN DEL HEADER ===== */
-        .dashboard-header {
-            animation: slideDown 0.5s ease-out;
-        }
-
-        keyframes slideDown {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
     </style>
 </head>
 <body>
@@ -286,13 +283,13 @@
                 <a href="@Url.Action("Index", "Ventas")" title="Ventas" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                 </a>
-                <a href="@Url.Action("ByVenta", "DetalleVenta")" title="Detalle Venta" class="nav-item">
+                <a href="@Url.Action("Index", "DetalleVenta")" title="Detalle Venta" class="nav-item">
                     <i class="fas fa-list"></i>
                 </a>
-                <a href="@Url.Action("ByProducto", "MovimientoInventario")" title="Movimientos" class="nav-item">
+                <a href="@Url.Action("Index", "MovimientoInventario")" title="Movimientos" class="nav-item">
                     <i class="fas fa-exchange-alt"></i>
                 </a>
-                <a href="@Url.Action("ResumenVentas", "Reportes")" title="Reportes" class="nav-item">
+                <a href="@Url.Action("Index", "Reportes")" title="Reportes" class="nav-item">
                     <i class="fas fa-file-alt"></i>
                 </a>
             </nav>
